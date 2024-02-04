@@ -22,10 +22,29 @@ export const AddBook=async (req, res)=>{
 export const getAllBooks=async (req,res)=>{
     try {
         const books= await Book.aggregate([
-            { $sort: { createdAt: -1 } } // Sort by createdAt in descending order
+            { $sort: { createdAt: -1 } }
           ]);
         res.status(200).json({success:true,data:books})
     } catch (error) {
         res.send(404).json({success:false,error:error.message})
     }
 }
+
+export const getCatBooks=async (req,res)=>{
+    const {category}=req.body
+    try {
+        console.log(category)
+        const books= await Book.aggregate([
+            { $sort: { createdAt: -1 } },
+            {
+                $match: {
+                    category: category, 
+                },
+            },
+          ]);
+        res.status(200).json({success:true,data:books})
+    } catch (error) {
+        res.send(404).json({success:false,error:error.message})
+    }
+}
+

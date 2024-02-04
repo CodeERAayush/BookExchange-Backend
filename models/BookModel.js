@@ -11,6 +11,11 @@ const bookSchema = new mongoose.Schema({
   image: { type: String, required: true }, // Assuming this is a URL to the book image
   publicationYear: { type: Number },
   condition: { type: String },
+  category: {
+    type: String,
+    enum: ['paper', 'book'],
+    required: true
+  },
   user: { type: userSchema, required: true },
   user_id: {
     type: String,
@@ -22,7 +27,7 @@ const bookSchema = new mongoose.Schema({
   quantity: { type: Number },
   price: { type: Number },
 },
-{timestamps:true});
+  { timestamps: true });
 
 const Book = mongoose.model('Book', bookSchema);
 

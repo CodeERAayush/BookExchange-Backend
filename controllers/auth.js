@@ -4,9 +4,8 @@ import User from '../models/UserModel.js'
 
 export const register = async (req, res) => {
   try {
-    const { password, roomName } = req.body;
-    const roomId = jwt.sign({ roomId: roomName }, process.env.JWT_SECRET);
-    console.log("room_id ",roomId)
+    const { password, email } = req.body;
+    const roomId = jwt.sign({ roomId: email }, process.env.JWT_SECRET);
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
     const newUser = new User({ ...req.body, password: passwordHash, roomId: roomId });

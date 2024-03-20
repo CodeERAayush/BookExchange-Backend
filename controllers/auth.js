@@ -1,14 +1,23 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from '../models/UserModel.js'
+import Hostel from "../models/HostelModel.js";
 
+export const registerHostel = async (req, res) => {
+  try {
+    const newHostel = new Hostel({ ...req.body });
+    const savedHostel = await newHostel.save();
+    res.status(201).json(savedHostel);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 export const register = async (req, res) => {
   try {
-    const { password, email } = req.body;
-    const roomId = jwt.sign({ roomId: email }, process.env.JWT_SECRET);
+    const { password } = req.body;
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
-    const newUser = new User({ ...req.body, password: passwordHash, roomId: roomId });
+    const newUser = new User({ ...req.body, password: passwordHash });
     const savedUser = await newUser.save();
     delete savedUser.password;
     res.status(201).json(savedUser);

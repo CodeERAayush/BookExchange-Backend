@@ -13,13 +13,22 @@ const bookSchema = new mongoose.Schema({
   condition: { type: String },
   category: {
     type: String,
-    enum: ['paper', 'book'],
+    enum: ['paper', 'book', 'gadgets', 'clothing', 'vehicle', 'other'],
     required: true
   },
   user: { type: userSchema, required: true },
   user_id: {
     type: String,
     required: true,
+  },
+  hostel_id:{
+    type:String,
+    required:true
+  },
+  hostel_details:{
+    type:mongoose.Schema?.Types?.ObjectId,
+    ref:'Hostel',
+    required:true
   },
   writerName: { type: String },
   description: { type: String },

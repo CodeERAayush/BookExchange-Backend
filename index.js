@@ -8,7 +8,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
-import { register } from "./controllers/auth.js";
+import { register, registerHostel } from "./controllers/auth.js";
 import AuthRoute from './routes/Auth.js'
 import UserRoute from './routes/UserRoute.js'
 import BookRoute from './routes/BooksRoute.js'
@@ -30,34 +30,35 @@ app.use(cors());
 app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-       cb(null, "public/assets");
-    },
-    filename: function (req, file, cb) {
-       cb(null, file.originalname);
-    },
-   });
-   const upload = multer({ storage });
+   destination: function (req, file, cb) {
+      cb(null, "public/assets");
+   },
+   filename: function (req, file, cb) {
+      cb(null, file.originalname);
+   },
+});
+const upload = multer({ storage });
 
 
+app.post("/auth/register_hostel", upload.single("picture"), registerHostel);
 app.post("/auth/register", upload.single("picture"), register);
-app.post("/add_book",verifyToken,upload.single("picture"),AddBook)
-app.use('/bookApp',AuthRoute)
-app.use('/bookApp',verifyToken,UserRoute)
-app.use('/bookApp',verifyToken,BookRoute)
-app.use('/bookApp',verifyToken,ReviewRoute)
+app.post("/add_book", verifyToken, upload.single("picture"), AddBook)
+app.use('/bookApp', AuthRoute)
+app.use('/bookApp', verifyToken, UserRoute)
+app.use('/bookApp', verifyToken, BookRoute)
+app.use('/bookApp', verifyToken, ReviewRoute)
 
 
 
 
 
-   const PORT = process.env.PORT || 6001;
+const PORT = process.env.PORT || 6001;
 mongoose
- .connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
- })
- .then(() => {
-    app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
- })
- .catch((error) => console.log(`${error} did not connect`));
+   .connect(process.env.MONGO_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+   })
+   .then(() => {
+      app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
+   })
+   .catch((error) => console.log(`${error} did not connect`));

@@ -31,7 +31,10 @@ const UserSchema=mongoose.Schema({
         profileViews:{type: Number,default:0},
         address: {type:String,required:true},
         NotificationId: String,
-        roomId:String,
+        hostel:{
+          type:String,
+          required:true
+        },
         totalSold:{type: Number,default:0}
 },
 {timestamps:true}

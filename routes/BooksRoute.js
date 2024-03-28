@@ -4,7 +4,7 @@ import { AddBook, getAllBooks, getCatBooks, getHostelWiseBooks, getHostelWiseBoo
 const router=express.Router()
 
 // router.post('/add_book',AddBook)
-router.get('/getBooks',getAllBooks)
+router.post('/getBooks',getAllBooks)
 router.post('/get_books_categorywise',getCatBooks)
 router.post('/get_books_hostelwise',getHostelWiseBooks)
 router.post('/get_books_category_hostel',getHostelWiseBooksCategoryWise)

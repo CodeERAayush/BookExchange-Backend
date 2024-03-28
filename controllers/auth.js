@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from '../models/UserModel.js'
 import Hostel from "../models/HostelModel.js";
+import { sendEmail } from "../helper/helper.js";
 
 export const registerHostel = async (req, res) => {
   try {
@@ -14,13 +15,17 @@ export const registerHostel = async (req, res) => {
 };
 export const register = async (req, res) => {
   try {
-    const { password } = req.body;
+    const { password,email } = req.body;
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
     const newUser = new User({ ...req.body, password: passwordHash });
     const savedUser = await newUser.save();
-    delete savedUser.password;
-    res.status(201).json(savedUser);
+    // delete savedUser.password;
+    
+    // let emailType="VERIFY"
+
+    // const mailResponse=await sendEmail({email,emailType,userId:savedUser?._id})
+    res.status(201).json({success:true,data:savedUser});
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -37,10 +42,14 @@ export const login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ msg: "Invalid Password" });
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-    console.log("token:: ", token)
+    // console.log("token:: ", token)
     delete user.password;
     res.status(200).json({ token, user });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
+}
+
+export const sendVerificationMail=async(req,res)=>{
+  
 }

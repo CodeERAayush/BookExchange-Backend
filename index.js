@@ -42,7 +42,7 @@ const upload = multer({ storage });
 
 app.post("/auth/register_hostel", upload.single("picture"), registerHostel);
 app.post("/auth/register", upload.single("picture"), register);
-app.post("/add_book", verifyToken, upload.single("picture"), AddBook)
+app.post("/add_book", verifyToken, upload.array("picture",4), AddBook)
 app.use('/bookApp', AuthRoute)
 app.use('/bookApp', verifyToken, UserRoute)
 app.use('/bookApp', verifyToken, BookRoute)

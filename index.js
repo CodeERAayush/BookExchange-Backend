@@ -14,7 +14,8 @@ import UserRoute from './routes/UserRoute.js'
 import BookRoute from './routes/BooksRoute.js'
 import ReviewRoute from './routes/Review.js'
 import { verifyToken } from "./middleware/auth.js";
-import { AddBook } from "./controllers/book.js";
+import { AddBook, getAllBooks } from "./controllers/book.js";
+import { getAllHostels } from "./controllers/hostel.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config();
@@ -42,6 +43,7 @@ const upload = multer({ storage });
 
 app.post("/auth/register_hostel", upload.single("picture"), registerHostel);
 app.post("/auth/register", upload.single("picture"), register);
+app.get('/get_all_hostels',getAllHostels)
 app.post("/add_book", verifyToken, upload.array("picture",4), AddBook)
 app.use('/bookApp', AuthRoute)
 app.use('/bookApp', verifyToken, UserRoute)

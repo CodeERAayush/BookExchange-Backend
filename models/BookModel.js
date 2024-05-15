@@ -4,13 +4,14 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   profileImage: { type: String }, // Assuming this is a URL to the profile image
   address: { type: String },
+  phone:{type:String}
 });
 
 const bookSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  image: { type: String, required: true }, // Assuming this is a URL to the book image
+  image: { type: Array, required: true }, // Assuming this is a URL to the book image
   publicationYear: { type: Number },
-  condition: { type: String },
+  condition: { type: String,required:true },
   category: {
     type: String,
     enum: ['paper', 'book', 'gadgets', 'clothing', 'vehicle', 'other'],
@@ -34,7 +35,7 @@ const bookSchema = new mongoose.Schema({
   description: { type: String },
   soldOut: { type: Boolean, default: false },
   quantity: { type: Number },
-  price: { type: Number },
+  price: { type: String },
 },
   { timestamps: true });
 

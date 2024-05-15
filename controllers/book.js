@@ -5,7 +5,8 @@ import User from "../models/UserModel.js"
 
 export const AddBook = async (req, res) => {
     const uid = req.user?.id
-    const { name, image, description, price, quantity, writerName, condition, publicationYear, hostel_id } = req.body;
+    const { name, image, description, price, quantity, writerName, condition, publicationYear, hostel_id,picture } = req.body;
+    console.log("kya aya : ",image,"   ",picture)
     try {
         const user = await User?.findOne({ _id: uid })
         const hostel = await Hostel?.findOne({ _id: hostel_id })
@@ -13,12 +14,13 @@ export const AddBook = async (req, res) => {
         const newBook = new Book({
             ...req.body,
             user_id: uid,
-            user: { name: user?.firstName + " " + user?.lastName, profileImage: user?.picturePath, address: user?.address },
+            user: { name: user?.firstName + " " + user?.lastName, profileImage: user?.picturePath, address: user?.address,phone:user?.phone },
             hostel_details: hostel
         })
         await newBook.save()
         return res.status(200)?.json({ success: true, data: newBook })
     } catch (error) {
+        console.log(error)
         return res.status(500)?.json({ error: error?.message })
     }
 }
@@ -43,6 +45,18 @@ export const getAllBooks = async (req, res) => {
     } catch (error) {
         res.status(404).json({ success: false, error: error.message })
     }
+}
+
+export const getBookDetails=async (req,res)=>{
+    try {
+        const {id}=req.params
+        console.log(id)
+        let bookData=await Book.findOne({_id:new mongoose.Types.ObjectId(id)})
+        let hostelData=await Hostel.findOne({_id:new mongoose.Types.ObjectId(bookData?.hostel_id)})
+        res.status(200).json({success:true,data:bookData,hostelData:hostelData})
+    } catch (error) {
+    res.status(404).json({ success: false, error: error.message })
+}
 }
 
 export const getCatBooks = async (req, res) => {
@@ -102,6 +116,24 @@ export const getHostelWiseBooks = async (req, res) => {
                 },
             },
             {$limit:10}
+        ]);
+        res.status(200).json({ success: true, data: books })
+    } catch (error) {
+        res.send(500).json({ success: false, error: error.message })
+    }
+}
+export const getHostelWiseNewBooks = async (req, res) => {
+    const { hostel_id } = req.body
+    try {
+        let books;
+        books = await Book.aggregate([
+            { $sort: { createdAt: -1 } },
+            {
+                $match: {
+                    hostel_id: hostel_id,
+                },
+            },
+            {$limit:5}
         ]);
         res.status(200).json({ success: true, data: books })
     } catch (error) {

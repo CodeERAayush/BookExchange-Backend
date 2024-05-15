@@ -15,12 +15,13 @@ export const registerHostel = async (req, res) => {
 };
 export const register = async (req, res) => {
   try {
-    const { password,email } = req.body;
+    const { password,email,hostel,NotificationId } = req.body;
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
-    const newUser = new User({ ...req.body, password: passwordHash });
+    const HostelDetail=await Hostel.findOne({_id:hostel})
+    const newUser = new User({ ...req.body, password: passwordHash,hostel:JSON.stringify(HostelDetail) });
     const savedUser = await newUser.save();
-    // delete savedUser.password;
+    delete savedUser.password;
     
     // let emailType="VERIFY"
 

@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   phone:{type:String}
 });
 
+
 const bookSchema = new mongoose.Schema({
   name: { type: String, required: true },
   image: { type: Array, required: true }, // Assuming this is a URL to the book image
@@ -27,9 +28,7 @@ const bookSchema = new mongoose.Schema({
     required:true
   },
   hostel_details:{
-    type:mongoose.Schema?.Types?.ObjectId,
-    ref:'Hostel',
-    required:true
+    type:String,
   },
   writerName: { type: String },
   description: { type: String },

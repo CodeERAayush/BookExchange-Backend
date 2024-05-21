@@ -10,12 +10,12 @@ export const AddBook = async (req, res) => {
     try {
         const user = await User?.findOne({ _id: uid })
         const hostel = await Hostel?.findOne({ _id: hostel_id })
-        // console.log(req.body)
+        // console.log(hostel)
         const newBook = new Book({
             ...req.body,
             user_id: uid,
             user: { name: user?.firstName + " " + user?.lastName, profileImage: user?.picturePath, address: user?.address,phone:user?.phone },
-            hostel_details: hostel
+            hostel_details: JSON.stringify(hostel)
         })
         await newBook.save()
         return res.status(200)?.json({ success: true, data: newBook })
@@ -44,6 +44,47 @@ export const getAllBooks = async (req, res) => {
         res.status(200).json({ success: true, data: books })
     } catch (error) {
         res.status(404).json({ success: false, error: error.message })
+    }
+}
+
+export const getMyBooks=async(req,res)=>{
+    try {
+        const {id}=req.user;
+        let books;
+        let numBooks=await Book.find({user_id:id});
+        if (req.body.lastBookId) {
+            books = await Book.aggregate([
+                { $sort: { createdAt: -1 } },
+                { $match: {user_id:id , _id: { $lt: new mongoose.Types.ObjectId(req.body.lastBookId) }}},
+                { $limit: 15 }
+            ]);
+        }
+        else {
+            books = await Book.aggregate([
+                { $sort: { createdAt: -1 } },
+                { $match: { user_id:id }},
+                { $limit: 15 }
+            ])
+        }
+        res.status(200).json({ success: true, data: books, numberofBooks:numBooks?.length })
+    } catch (error) {
+        res.status(400).json({success:false,message:error})
+    }
+}
+
+export const deleteBook=async(req,res)=>{
+    try {
+        const {bookId}=req.body;
+        const book=await Book.findById(bookId);
+        if(!book){
+            return res.status(400).json({success:false,message:"Book not found"})
+        }
+        else {
+            await Book.findByIdAndDelete(bookId);
+            return res.status(200).json({success:true,message:"Book deleted",data:book})
+        }
+    } catch (error) {
+        res.status(400).json({success:false,message:error})
     }
 }
 

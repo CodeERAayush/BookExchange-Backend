@@ -26,26 +26,35 @@ export const AddBook = async (req, res) => {
 }
 
 export const getAllBooks = async (req, res) => {
+    const { lastBookId, searchQuery } = req.body;
     try {
         let books;
-        if (req.body.lastBookId) {
-            books = await Book.aggregate([
-                { $sort: { createdAt: -1 } },
-                { $match: { _id: { $lt: new mongoose.Types.ObjectId(req.body.lastBookId) } } },
-                { $limit: 15 }
-            ]);
+        const matchStage = {};
+
+        if (searchQuery) {
+            matchStage.$or = [
+                { name: { $regex: searchQuery, $options: 'i' } }, // Case-insensitive search by title
+                { writerName: { $regex: searchQuery, $options: 'i' } } // Case-insensitive search by author
+            ];
         }
-        else {
-            books = await Book.aggregate([
-                { $sort: { createdAt: -1 } },
-                { $limit: 15 }
-            ])
+
+        if (lastBookId) {
+            matchStage._id = { $lt: new mongoose.Types.ObjectId(lastBookId) };
         }
-        res.status(200).json({ success: true, data: books })
+
+        const aggregationPipeline = [
+            { $sort: { createdAt: -1 } },
+            { $match: matchStage },
+            { $limit: 15 }
+        ];
+
+        books = await Book.aggregate(aggregationPipeline);
+        res.status(200).json({ success: true, data: books });
     } catch (error) {
-        res.status(404).json({ success: false, error: error.message })
+        res.status(500).json({ success: false, error: error.message });
     }
-}
+};
+
 
 export const getMyBooks=async(req,res)=>{
     try {
@@ -101,68 +110,70 @@ export const getBookDetails=async (req,res)=>{
 }
 
 export const getCatBooks = async (req, res) => {
-    const { category,lastBookId } = req.body
+    const { category, lastBookId, searchQuery } = req.body;
     try {
-        console.log(category)
         let books;
-        if(lastBookId)
-        books = await Book.aggregate([
+        const matchStage = {
+            category: category
+        };
+
+        if (searchQuery) {
+            matchStage.$or = [
+                { name: { $regex: searchQuery, $options: 'i' } }, // Case-insensitive search by title
+                { writerName: { $regex: searchQuery, $options: 'i' } } // Case-insensitive search by author
+            ];
+        }
+
+        if (lastBookId) {
+            matchStage._id = { $lt: new mongoose.Types.ObjectId(lastBookId) };
+        }
+
+        const aggregationPipeline = [
             { $sort: { createdAt: -1 } },
-            {
-                $match: {
-                    category: category,
-                    _id: { $lt: new mongoose.Types.ObjectId(lastBookId) }
-                },
-            },
-            {$limit:10}
-        ]);
-        else
-        books = await Book.aggregate([
-            { $sort: { createdAt: -1 } },
-            {
-                $match: {
-                    category: category,
-                    
-                },
-            },
-            {$limit:10}
-        ]);
-        res.status(200).json({ success: true, data: books })
+            { $match: matchStage },
+            { $limit: 10 }
+        ];
+
+        books = await Book.aggregate(aggregationPipeline);
+        res.status(200).json({ success: true, data: books });
     } catch (error) {
-        res.send(404).json({ success: false, error: error.message })
+        res.status(500).json({ success: false, error: error.message });
     }
-}
+};
+
 
 export const getHostelWiseBooks = async (req, res) => {
-    const { hostel_id,lastBookId } = req.body
+    const { hostel_id, lastBookId, searchQuery } = req.body;
     try {
         let books;
-        if(lastBookId)
-        books = await Book.aggregate([
+        const matchStage = {
+            hostel_id: hostel_id
+        };
+
+        if (searchQuery) {
+            matchStage.$or = [
+                { name: { $regex: searchQuery, $options: 'i' } }, 
+                { writerName: { $regex: searchQuery, $options: 'i' } } 
+            ];
+        }
+
+        if (lastBookId) {
+            matchStage._id = { $lt: new mongoose.Types.ObjectId(lastBookId) };
+        }
+
+        const aggregationPipeline = [
             { $sort: { createdAt: -1 } },
-            {
-                $match: {
-                    hostel_id: hostel_id,
-                    _id: { $lt: new mongoose.Types.ObjectId(lastBookId) }
-                },
-            },
-            {$limit:10}
-        ]);
-        else
-        books = await Book.aggregate([
-            { $sort: { createdAt: -1 } },
-            {
-                $match: {
-                    hostel_id: hostel_id,
-                },
-            },
-            {$limit:10}
-        ]);
-        res.status(200).json({ success: true, data: books })
+            { $match: matchStage },
+            { $limit: 10 }
+        ];
+
+        books = await Book.aggregate(aggregationPipeline);
+        res.status(200).json({ success: true, data: books });
     } catch (error) {
-        res.send(500).json({ success: false, error: error.message })
+        res.status(500).json({ success: false, error: error.message });
     }
-}
+};
+
 export const getHostelWiseNewBooks = async (req, res) => {
     const { hostel_id } = req.body
     try {
@@ -182,35 +193,32 @@ export const getHostelWiseNewBooks = async (req, res) => {
     }
 }
 export const getHostelWiseBooksCategoryWise = async (req, res) => {
-    const { hostel_id, category,lastBookId } = req.body
+    const { hostel_id, category, lastBookId, searchQuery } = req.body;
     try {
-        let books; 
-        if(lastBookId)
-        books = await Book.aggregate([
+        let books;
+        const matchStage = {
+            hostel_id: hostel_id,
+            category: category
+        };
+        if (searchQuery) {
+            matchStage.$or = [
+                { name: { $regex: searchQuery, $options: 'i' } }, // Case-insensitive search by title
+                { writerName: { $regex: searchQuery, $options: 'i' } } // Case-insensitive search by author
+            ];
+        }
+        const aggregationPipeline = [
             { $sort: { createdAt: -1 } },
-            {
-                $match: {
-                    hostel_id: hostel_id,
-                    category: category,
-                    _id: { $lt: new mongoose.Types.ObjectId(lastBookId) }
-                }
-            },
-            {$limit:10}
-        ]);
-        else
-        books = await Book.aggregate([
-            { $sort: { createdAt: -1 } },
-            {
-                $match: {
-                    hostel_id: hostel_id,
-                    category: category,
-                }
-            },
-            {$limit:10}
-        ]);
-        res.status(200).json({ success: true, data: books })
+            { $match: matchStage }
+        ];
+        if (lastBookId) {
+            aggregationPipeline.push({ $match: { _id: { $lt: new mongoose.Types.ObjectId(lastBookId) } } });
+        }
+        aggregationPipeline.push({ $limit: 10 });
+        books = await Book.aggregate(aggregationPipeline);
+        res.status(200).json({ success: true, data: books });
     } catch (error) {
-        res.send(500).json({ success: false, error: error.message })
+        res.status(500).json({ success: false, error: error.message });
     }
-}
+};
+
 

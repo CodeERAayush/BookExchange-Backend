@@ -2,16 +2,32 @@ import mongoose from "mongoose";
 import Book from "../models/BookModel.js";
 import Hostel from "../models/HostelModel.js";
 
-export const getAllHostels=async(req,res)=>{
-try {
-    const allHostel=await Hostel.aggregate([
-        {$sort:{hostelName:1}},
-    ]);
-    res?.status(200)?.json({success:true,data:allHostel});
-} catch (error) {
-    res.status(500).json({message: error})
-}
-}
+export const getAllHostels = async (req, res) => {
+    const { searchQuery } = req.body;
+    try {
+        let allHostels;
+        const matchStage = {};
+
+        if (searchQuery) {
+            matchStage.$or = [
+                { hostelName: { $regex: searchQuery, $options: 'i' } }, // Case-insensitive search by hostelName
+                { address: { $regex: searchQuery, $options: 'i' } } // Case-insensitive search by address
+                // Add more fields to search if needed
+            ];
+        }
+
+        const aggregationPipeline = [
+            { $sort: { hostelName: 1 } }, // Sort hostels by hostelName in ascending order
+            { $match: matchStage }
+        ];
+
+        allHostels = await Hostel.aggregate(aggregationPipeline);
+        res.status(200).json({ success: true, data: allHostels });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
 
 export const getHostelsWithDetails=async(req,res)=>{
     try {

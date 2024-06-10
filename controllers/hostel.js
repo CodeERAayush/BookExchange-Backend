@@ -10,14 +10,13 @@ export const getAllHostels = async (req, res) => {
 
         if (searchQuery) {
             matchStage.$or = [
-                { hostelName: { $regex: searchQuery, $options: 'i' } }, // Case-insensitive search by hostelName
-                { address: { $regex: searchQuery, $options: 'i' } } // Case-insensitive search by address
-                // Add more fields to search if needed
+                { hostelName: { $regex: searchQuery, $options: 'i' } }, 
+                { address: { $regex: searchQuery, $options: 'i' } } 
             ];
         }
 
         const aggregationPipeline = [
-            { $sort: { hostelName: 1 } }, // Sort hostels by hostelName in ascending order
+            { $sort: { hostelName: 1 } }, 
             { $match: matchStage }
         ];
 

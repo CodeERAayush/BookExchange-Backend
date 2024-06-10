@@ -6,7 +6,7 @@ import User from "../models/UserModel.js"
 export const AddBook = async (req, res) => {
     const uid = req.user?.id
     const { name, image, description, price, quantity, writerName, condition, publicationYear, hostel_id,picture } = req.body;
-    console.log("kya aya : ",image,"   ",picture)
+    // console.log("kya aya : ",image,"   ",picture)
     try {
         const user = await User?.findOne({ _id: uid })
         const hostel = await Hostel?.findOne({ _id: hostel_id })
@@ -26,7 +26,7 @@ export const AddBook = async (req, res) => {
 }
 
 export const getAllBooks = async (req, res) => {
-    const { lastBookId, searchQuery } = req.body;
+    const { lastBookId, searchQuery,sortByDate,category,hostel_id  } = req.body;
     try {
         let books;
         const matchStage = {};
@@ -37,13 +37,29 @@ export const getAllBooks = async (req, res) => {
                 { writerName: { $regex: searchQuery, $options: 'i' } } // Case-insensitive search by author
             ];
         }
+        if(category){
+            matchStage.category=category;
+        }
+        if(hostel_id){
+            matchStage.hostel_id=hostel_id;
+        }
 
         if (lastBookId) {
             matchStage._id = { $lt: new mongoose.Types.ObjectId(lastBookId) };
         }
 
+        const sort={}
+
+        if(sortByDate){
+            sort.createdAt=-1
+        }
+        else if(!sortByDate){
+            sort.createdAt=1
+        }
+
+
         const aggregationPipeline = [
-            { $sort: { createdAt: -1 } },
+            { $sort: sort },
             { $match: matchStage },
             { $limit: 15 }
         ];
